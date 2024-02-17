@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Blockchain Management</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css"
+      integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4"
+      crossorigin="anonymous"
+    />
+    <style>
+      body {
+        /* background-color: #f8f9fadd; */
+        background-color: #f8f9fa; /* A light gray that's softer than white */
+        margin: 0; /* Removes default margin */
+        font-family: Arial, sans-serif;
+      }
+      .header {
+        background: linear-gradient(to right, #28a745, #1e7e34);
+        color: #f8f9fa; /* Adjust text color as needed */
+        padding: 20px; /* Adjust padding as needed */
+        text-align: center; /* Centers the text */
+        font-size: 30px; /* Adjust font size as needed */
+        border-bottom-left-radius: 20px; /* Rounds the bottom left corner */
+        border-bottom-right-radius: 20px; /* Rounds the bottom right corner */
+      }
+      .lds-ring {
+        display: inline-block;
+        position: relative;
+        width: 64px;
+        height: 64px;
+      }
+      .lds-ring div {
+        box-sizing: border-box;
+        display: block;
+        position: absolute;
+        width: 51px;
+        height: 51px;
+        margin: 6px;
+        border: 6px solid #fa923f;
+        border-radius: 50%;
+        animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+        border-color: #fa923f transparent transparent transparent;
+      }
+      .lds-ring div:nth-child(1) {
+        animation-delay: -0.45s;
+      }
+      .lds-ring div:nth-child(2) {
+        animation-delay: -0.3s;
+      }
+      .lds-ring div:nth-child(3) {
+        animation-delay: -0.15s;
+      }
+      .nav-link {
+        color: #218838;
+      }
+
+      .nav-link:hover {
+        color: #28a745;
+      }
+      .nav-pills .nav-link.active,
+      .nav-pills .nav-link.active:hover,
+      .nav-pills .nav-link.active:focus {
+        color: #f8f9fa;
+        background-color: #218838;
+        border-color: #1e7e34;
+      }
+      .btn {
+        background-color: #28a745;
+        border-color: #28a745;
+        color: #f8f9fa;
+      }
+      .btn:hover,
+      .btn:focus {
+        background-color: #218838;
+        border-color: #1e7e34;
+        color: #f8f9fa;
+      }
+
+      .btn-primary {
+        background-color: #28a745;
+        border-color: #28a745;
+      }
+      .btn-primary:hover,
+      .btn-primary:focus {
+        background-color: #218838;
+        border-color: #1e7e34;
+      }
+      .btn-primary:disabled {
+        background-color: #218838;
+        border-color: #1e7e34;
+      }
+      .btn-secondary {
+        background-color: #ffc107;
+        border-color: #ffc107;
+      }
+      .btn-secondary:hover {
+        background-color: #ffb300;
+        border-color: #ffb300;
+      }
+      .funds-text {
+        color: #145a23;
+      }
+      @keyframes lds-ring {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      .alert {
+        word-wrap: break-word; /* Older browsers */
+        overflow-wrap: break-word; /* Ensures breaking at arbitrary points if needed */
+        max-width: 100%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="app">
+      <div class="container">
+        <div class="row mb-3">
+          <div class="col header">
+            <h1>Manage your Blockchain</h1>
+          </div>
+        </div>
+        <div v-if="error" class="alert alert-danger" role="alert">
+          {{ error }}
+        </div>
+        <div v-if="success" class="alert alert-success" role="alert">
+          {{ success }}
+        </div>
+        <div class="row">
+          <div class="col">
+            <ul class="nav nav-pills">
+              <li class="nav-item">
+                <a class="nav-link" href="/">Wallet &amp; Node</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link active" href="/network">Network</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <hr />
+        <div class="row">
+          <div class="col">
+            <form @submit.prevent="onAddNode">
+              <div class="form-group">
+                <label for="node-url">Node URL</label>
+                <input
+                  v-model="newNodeUrl"
+                  type="text"
+                  class="form-control"
+                  id="node-url"
+                  placeholder="localhost:5001"
+                />
+              </div>
+              <button
+                :disabled="newNodeUrl.trim() === ''"
+                type="submit"
+                class="btn btn-primary"
+              >
+                Add
+              </button>
+            </form>
+          </div>
+        </div>
+        <hr />
+        <div class="row my-3">
+          <div class="col">
+            <button class="btn btn-primary" @click="onLoadNodes">
+              Load Peer Nodes
+            </button>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <ul class="list-group">
+              <button
+                v-for="node in nodes"
+                style="cursor: pointer"
+                class="list-group-item list-group-item-action"
+                @click="onRemoveNode(node)"
+              >
+                {{ node }} (click to delete)
+              </button>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+      new Vue({
+        el: '#app',
+        data: {
+          nodes: [],
+          newNodeUrl: '',
+          error: null,
+          success: null,
+        },
+        methods: {
+          onAddNode: function () {
+            // Add node as peer node to local node server
+            var vm = this;
+            axios
+              .post('/node', { node: this.newNodeUrl })
+              .then(function (response) {
+                vm.success = 'Added node successfully';
+                vm.error = null;
+                vm.nodes = response.data.all_nodes;
+              })
+              .catch(function (error) {
+                vm.error = error.response.data.message;
+                vm.success = null;
+              });
+          },
+          onLoadNodes: function () {
+            // Load all peer nodes of the local node server
+            var vm = this;
+            axios
+              .get('/nodes')
+              .then(function (response) {
+                vm.success = 'Fetched nodes successfully';
+                vm.error = null;
+                vm.nodes = response.data.all_nodes;
+              })
+              .catch(function (error) {
+                vm.success = null;
+                vm.error = error.response.data.message;
+              });
+          },
+          onRemoveNode: function (node_url) {
+            // Remove node as a peer node
+            var vm = this;
+            axios
+              .delete('/node/' + node_url)
+              .then(function (response) {
+                vm.success = 'Deleted node successfully';
+                vm.error = null;
+                vm.nodes = response.data.all_nodes;
+              })
+              .catch(function (error) {
+                vm.success = null;
+                vm.error = error.response.data.message;
+              });
+          },
+        },
+      });
+    </script>
+  </body>
+</html>
