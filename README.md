@@ -1,4 +1,4 @@
-# EriCoin
+# EriCoin Cryptocurrency - Blockchain Application
 Blockchain Codebase for EriCoin, a simple blockchain currency
 
 This is a codebase for a basic blockchain currency.
